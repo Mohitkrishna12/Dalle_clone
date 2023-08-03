@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Loader, Card, FormField } from '../components'
 
 const RenderCards = ({ data, title }:any) => {
@@ -19,6 +19,25 @@ const Home = () => {
     const [searchText,setSearchText] = useState("");
     const [searchTimeout, setSearchTimeout] = useState(null);
     const [searchedResults, setSearchedResults] = useState(null);
+
+    const getAllPost =async () => {
+      setLoading(true);
+      try {
+        
+        const response = await fetch("http://localhost:8080/api/v1/post");
+        const result = await response.json();
+        setAllPosts(result?.data?.reverse());
+      } catch (error) {
+        alert(error)
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    useEffect(()=>{
+    getAllPost();
+
+    },[])
 
 
   return (

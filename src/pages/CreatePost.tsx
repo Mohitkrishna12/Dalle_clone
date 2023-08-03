@@ -17,37 +17,66 @@ const CreatePost = () => {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: any) => {
-    setForm({ ...form, [e.target.name]:e.target.value})
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
   const handleSurpriseMe = () => {
     const getPrompt = getRandomPrompt(form.prompt);
-    setForm({...form,prompt:getPrompt})
+    setForm({ ...form, prompt: getPrompt });
   };
-  const generateImage = async() => {
+  const generateImage = async () => {
     //api call to backend to get ai img
-    try{
-      setGeneratingImg(true);
-      const response = await fetch("http://localhost:8080/api/v1/ai-img/generate",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(form)
-      });
-      console.log(response)
-      const result = await response.json();
-      setGeneratingImg(false)
-      console.log(result)
-    }catch(err){
-      setGeneratingImg(false);
-      console.log(err)
+    if (form.prompt) {
+      try {
+        setGeneratingImg(true);
+        const response = await fetch(
+          "http://localhost:8080/api/v1/ai-img/generate",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(form),
+          }
+        );
+        console.log(response);
+        const result = await response.json();
+        setForm({ ...form, photo: `data:image/jpeg;base64,${result?.photo}` });
+        console.log(result);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setGeneratingImg(false);
+      }
+    } else {
+      alert("Please provide proper prompt");
     }
-
   };
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
+    if (form.prompt && form.photo) {
+      setLoading(true);
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/post/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({...form}),
+        });
+        await response.json();
+        console.log(response);
+        //alert("Success");
+        //navigate("/");
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      alert("Please generate an image with proper details");
+    }
   };
-  console.log(form)
+  console.log(form);
   return (
     <section className="max-w-7xl mx-auto">
       <div>
