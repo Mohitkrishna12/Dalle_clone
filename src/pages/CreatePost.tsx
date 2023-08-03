@@ -66,7 +66,7 @@ const CreatePost = () => {
         await response.json();
         console.log(response);
         //alert("Success");
-        //navigate("/");
+        navigate("/");
       } catch (error) {
         alert(error);
       } finally {
